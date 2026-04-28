@@ -2,6 +2,8 @@ name: Print actions/runner tags
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
 
 jobs:
   fetch-latest-tag:
@@ -36,9 +38,10 @@ jobs:
           set -euo pipefail
           normalized_latest_tag="${LATEST_TAG#v}"
           normalized_expected_tag="${EXPECTED_TAG#v}"
+          echo "latest tag: $LATEST_TAG"
+          echo "expected tag: $EXPECTED_TAG"
           if [ "$normalized_latest_tag" != "$normalized_expected_tag" ]; then
             echo "latest tag is not matched with your tag"
           else
             echo "latest tag matched your tag"
           fi
-
