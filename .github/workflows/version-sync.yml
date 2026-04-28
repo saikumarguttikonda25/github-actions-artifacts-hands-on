@@ -4,16 +4,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  print-tags:
+  fetch-latest-tag:
     runs-on: ubuntu-latest
+    outputs:
+      latest_tag: ${{ steps.latest-tag.outputs.latest_tag }}
     steps:
-      - name: Fetch and print tags page entries
+      - name: Fetch latest tag
+        id: latest-tag
         env:
           TAGS_URL: https://github.com/actions/runner/tags
         run: |
           set -euo pipefail
-          curl -fsSL "$TAGS_URL" \
+          latest_tag=$(
+            curl -fsSL "$TAGS_URL" \
             | grep -oE 'href="/actions/runner/releases/tag/[^"]+"' \
             | sed -E 's#href="/actions/runner/releases/tag/([^"]+)"#\1#' \
             | awk '!seen[$0]++ { print; exit }'
+          )
+          echo "$latest_tag"
+          echo "latest_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+
+  compare-tag:
+    runs-on: ubuntu-latest
+    needs: fetch-latest-tag
+    steps:
+      - name: Compare latest tag with expected tag
+        env:
+          EXPECTED_TAG: 2.333.4
+          LATEST_TAG: ${{ needs.fetch-latest-tag.outputs.latest_tag }}
+        run: |
+          set -euo pipefail
+          normalized_latest_tag="${LATEST_TAG#v}"
+          normalized_expected_tag="${EXPECTED_TAG#v}"
+          if [ "$normalized_latest_tag" != "$normalized_expected_tag" ]; then
+            echo "latest tag is not matched with your tag"
+          else
+            echo "latest tag matched your tag"
+          fi
 
