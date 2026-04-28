@@ -12,8 +12,8 @@ jobs:
           TAGS_URL: https://github.com/actions/runner/tags
         run: |
           set -euo pipefail
-          echo "Tags from $TAGS_URL:"
           curl -fsSL "$TAGS_URL" \
             | grep -oE 'href="/actions/runner/releases/tag/[^"]+"' \
             | sed -E 's#href="/actions/runner/releases/tag/([^"]+)"#\1#' \
-            | sort -u
+            | awk '!seen[$0]++ { print; exit }'
+
