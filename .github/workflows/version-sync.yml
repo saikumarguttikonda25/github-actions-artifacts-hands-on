@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: Compare latest tag with expected tag
         env:
-          EXPECTED_TAG: 2.333.4
+          EXPECTED_TAG: 2.334.0
           LATEST_TAG: ${{ needs.fetch-latest-tag.outputs.latest_tag }}
         run: |
           set -euo pipefail
