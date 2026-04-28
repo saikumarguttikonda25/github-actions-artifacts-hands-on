@@ -1,0 +1,19 @@
+name: Print actions/runner tags
+
+on:
+  workflow_dispatch:
+
+jobs:
+  print-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch and print tags page entries
+        env:
+          TAGS_URL: https://github.com/actions/runner/tags
+        run: |
+          set -euo pipefail
+          echo "Tags from $TAGS_URL:"
+          curl -fsSL "$TAGS_URL" \
+            | grep -oE 'href="/actions/runner/releases/tag/[^"]+"' \
+            | sed -E 's#href="/actions/runner/releases/tag/([^"]+)"#\1#' \
+            | sort -u
